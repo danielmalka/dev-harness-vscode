@@ -1,0 +1,44 @@
+{
+  "name": "dev-harness",
+  "displayName": "Dev Harness",
+  "description": "Viewer and launcher for the Dev Harness Claude Code plugin.",
+  "version": "0.1.0",
+  "publisher": "danielmalka",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielmalka/dev-harness-vscode.git"
+  },
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "extensionKind": [
+    "workspace"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {},
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.test.json --noEmit",
+    "test": "tsc -p tsconfig.test.json && node --require ./out-test/test/mock/register.js --test \"out-test/test/unit/*.test.js\"",
+    "test:integration": "npm run build && tsc -p tsconfig.test.json && node out-test/test/integration/runTest.js",
+    "package": "vsce package --no-dependencies",
+    "vscode:prepublish": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/vscode": "^1.93.0",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^4.0.0",
+    "eslint": "^10.12.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.1"
+  }
+}
