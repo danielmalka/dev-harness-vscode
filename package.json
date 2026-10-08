@@ -56,6 +56,7 @@
       "title": "Dev Harness",
       "properties": {
         "dh.dashboard.port": {
+          "scope": "machine",
           "type": "integer",
           "default": 4747,
           "minimum": 1024,

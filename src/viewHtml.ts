@@ -22,7 +22,7 @@ export function dashboardHtml(url: string): string {
 <html lang="pt-br"><head><meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="${esc(dashboardCsp(url))}">
 <style>html,body{margin:0;padding:0;height:100%;overflow:hidden}iframe{border:0;width:100%;height:100vh;display:block}</style>
-</head><body><iframe src="${esc(url)}" title="Dev Harness dashboard"></iframe></body></html>`;
+</head><body><iframe src="${esc(url)}" title="Dev Harness dashboard" sandbox="allow-scripts allow-same-origin"></iframe></body></html>`;
 }
 
 /** Message page: reason plus, when `startButton`, the "Iniciar dashboard" command link. `reason` is plain text. */

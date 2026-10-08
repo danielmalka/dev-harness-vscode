@@ -107,3 +107,19 @@ test("terminal closed during a wait: nothing more is sent and the result is fals
     assert.deepStrictEqual(sends, closeAt === SHELL_INTEGRATION_TIMEOUT_MS ? [] : [["sendText", "claude", true]]);
   }
 });
+
+test("Windows: a folder that ships its own claude.cmd is refused, no terminal", async () => {
+  const real = process.platform;
+  const planted = path.join(ws, "claude.cmd");
+  fs.writeFileSync(planted, "@echo off");
+  Object.defineProperty(process, "platform", { value: "win32" });
+  try {
+    mockState.picks = [pickPath(ws), pickCmd("build")];
+    assert.strictEqual(await openSession(fakeSleep), false);
+    assert.ok(mockState.errors[0]?.includes("executável claude"), mockState.errors.join());
+    assert.deepStrictEqual(created(), []);
+  } finally {
+    Object.defineProperty(process, "platform", { value: real });
+    fs.rmSync(planted);
+  }
+});

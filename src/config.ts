@@ -20,7 +20,8 @@ export function readConfig(): DashboardConfig {
   if (port === undefined) {
     port = DEFAULT_PORT;
     void vscode.window.showWarningMessage(
-      `dh.dashboard.port inválido (${JSON.stringify(raw)}): use um inteiro entre 1024 e 65535. Usando ${DEFAULT_PORT}.`,
+      // ponytail: the raw value is not echoed (a string could carry a command: link into the notification).
+      `dh.dashboard.port inválido: use um inteiro entre 1024 e 65535. Usando ${DEFAULT_PORT}.`,
     );
   }
   const rawRoots = cfg.get<unknown>("roots", []);

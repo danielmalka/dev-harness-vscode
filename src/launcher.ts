@@ -1,3 +1,4 @@
+import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
 import { DH_COMMANDS } from "./commands";
@@ -66,6 +67,11 @@ export async function openSession(sleep: Sleep = realSleep): Promise<boolean> {
   const cwd = validateCwd(folder.path, candidates());
   if (!cwd) {
     void vscode.window.showErrorMessage(`dh: pasta recusada (não existe ou não é uma das oferecidas): ${folder.path}`);
+    return false;
+  }
+  // cmd.exe runs a claude.* from the current folder before PATH: refuse a folder that ships one (Windows).
+  if (process.platform === "win32" && ["claude.cmd", "claude.bat", "claude.exe", "claude.com"].some((f) => fs.existsSync(path.join(cwd, f)))) {
+    void vscode.window.showErrorMessage(`dh: pasta recusada (contém um executável claude próprio): ${cwd}`);
     return false;
   }
   if (!DH_COMMANDS.includes(cmd.name)) {

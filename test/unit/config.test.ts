@@ -36,3 +36,10 @@ test("readConfig: roots containing ';' are dropped with a warning", () => {
   assert.strictEqual(mockState.warnings.length, 1);
   assert.match(mockState.warnings[0], /\/b;c/);
 });
+
+test("readConfig: the invalid port warning does not echo the raw value", () => {
+  mockState.config = { "dh.dashboard.port": "[x](command:workbench.action.terminal.sendSequence)" };
+  readConfig();
+  assert.strictEqual(mockState.warnings.length, 1);
+  assert.ok(!/command:|\[x\]/.test(mockState.warnings[0]), mockState.warnings[0]);
+});
