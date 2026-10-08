@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 - 2026-10-08
+
+- Docs: README records the manual verification in a real VS Code (Remote WSL and local Windows, probe T-1406) and the expected (not exercised) limit of "Iniciar dashboard" in a local Windows window. No code change.
+
 ## 0.1.1 - 2026-10-08
 
 - Fix: the embedded dashboard stayed on "carregando..." with no projects or sprites. With `enableScripts: false` VS Code removes `allow-scripts` from the webview content frame, and the nested dashboard iframe inherits that sandbox, so the dashboard page could not run its own script. The webview now sets `enableScripts: true`; the view page still runs no script of its own (its CSP has no `script-src`), and command links stay limited to `dh.startDashboard`. Seen in a real VS Code on Windows and Remote WSL (T-1406).
