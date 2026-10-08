@@ -5,6 +5,7 @@ test/**
 out-test/**
 **/*.map
 node_modules/**
+dist/**
 tsconfig*.json
 eslint.config.mjs
 AGENTS.md

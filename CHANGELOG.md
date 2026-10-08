@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3 - 2026-10-08
+
+- The `.vsix` of the current version is committed at `dist/dev-harness-<version>.vsix`; `npm run package` writes it there and removes the previous one. CI checks the committed file name against `package.json`, and the release job attaches that committed file. No code change.
+
 ## 0.1.2 - 2026-10-08
 
 - Docs: README records the manual verification in a real VS Code (Remote WSL and local Windows, probe T-1406) and the expected (not exercised) limit of "Iniciar dashboard" in a local Windows window. No code change.
