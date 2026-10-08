@@ -22,7 +22,58 @@
   "activationEvents": [
     "onStartupFinished"
   ],
-  "contributes": {},
+  "contributes": {
+    "commands": [
+      {
+        "command": "dh.startDashboard",
+        "title": "Iniciar dashboard",
+        "category": "Dev Harness"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "dh",
+          "title": "Dev Harness",
+          "icon": "media/dh.svg"
+        }
+      ]
+    },
+    "views": {
+      "dh": [
+        {
+          "type": "webview",
+          "id": "dh.dashboard",
+          "name": "Dashboard"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Dev Harness",
+      "properties": {
+        "dh.dashboard.port": {
+          "type": "integer",
+          "default": 4747,
+          "minimum": 1024,
+          "maximum": 65535,
+          "description": "Porta local do dh dashboard (1024 a 65535). Valor inválido cai em 4747 com aviso."
+        },
+        "dh.dashboard.roots": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Pastas de projetos passadas ao dh dashboard em DH_DASHBOARD_ROOTS (juntadas com ;) ao clicar em Iniciar dashboard."
+        },
+        "dh.dashboard.sprites": {
+          "type": "string",
+          "default": "",
+          "description": "Pasta de sprites passada ao dh dashboard em DH_DASHBOARD_SPRITES (opcional)."
+        }
+      }
+    }
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "eslint .",

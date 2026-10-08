@@ -14,16 +14,25 @@ Viewer and launcher for the Dev Harness plugin. It does not run the harness, orc
 
 ## Settings
 
-To be filled in T-1402 / T-1403: `dh.dashboard.port`, `dh.dashboard.roots`, `dh.dashboard.sprites`.
+| Setting | Type | Default | Use |
+|---|---|---|---|
+| `dh.dashboard.port` | integer, 1024 to 65535 | `4747` | Port of the local `dh dashboard`. An invalid value falls back to 4747 with a warning. |
+| `dh.dashboard.roots` | list of folders | `[]` | Passed to `dh dashboard` as `DH_DASHBOARD_ROOTS` (joined with `;`) when "Iniciar dashboard" starts it. A folder containing `;` is ignored with a warning. Empty: the inherited `DH_DASHBOARD_ROOTS` is kept. |
+| `dh.dashboard.sprites` | folder | `""` | Passed as `DH_DASHBOARD_SPRITES` (optional). Empty: the inherited value is kept. |
+
+The Dev Harness icon in the activity bar opens the Dashboard view. If the dashboard answers `GET http://127.0.0.1:<port>/api/state` within 2 s, the view embeds its page in an `iframe` (URL from `vscode.env.asExternalUri`). Otherwise the view says why and offers "Iniciar dashboard", which runs the newest installed plugin binary (`~/.claude/plugins/cache/dev-harness/dh/<version>/bin/<os>_<arch>/dh`) as `dh dashboard --detach --port <port>` and gives the whole start (dh exiting plus the dashboard answering) one 10 s deadline; a `dh` that does not exit in time is killed. Roots and sprites only take effect when the extension starts the dashboard; a dashboard already running keeps its own.
 
 ## Fields read from `/api/state`
 
-To be filled in T-1402 / T-1403.
+To be filled in T-1403. The view only checks that `/api/state` answers HTTP 200; it reads no field.
 
 ## Limits
 
 - Viewer and launcher only; no runtime dependency, no binary, no snapshot logic.
 - The panel is live-only in v0.1.
+- The view embeds the dashboard page; it does not reimplement it. The webview runs no scripts of its own: its CSP is `default-src 'none'; frame-src <dashboard origin>; style-src 'unsafe-inline'`, and the only command link allowed is `dh.startDashboard`.
+- If the Dev Harness plugin (`dh@dev-harness`) is not installed, the extension cannot start the dashboard; it never downloads or bundles `dh`.
+- Remote WSL/SSH embedding relies on `asExternalUri` and is not yet verified in a real VS Code (PRD-013 H1/H2).
 
 ## Development
 
