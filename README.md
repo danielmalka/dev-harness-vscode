@@ -9,7 +9,7 @@ Viewer and launcher for the Dev Harness plugin. It does not run the harness, orc
 
 ## Install from a `.vsix`
 
-1. Download `dev-harness-<version>.vsix` from the GitHub release.
+1. Take `dist/dev-harness-<version>.vsix` from this repository (committed for the current version) or download it from the GitHub release.
 2. In VS Code: Extensions view, `...` menu, "Install from VSIX...". Or `code --install-extension dev-harness-<version>.vsix`.
 
 ## Settings
@@ -58,5 +58,5 @@ Then it opens a terminal in that folder, waits for shell integration (up to 1 s)
 npm ci
 npm run lint && npm run typecheck && npm test
 xvfb-run -a npm run test:integration   # downloads a VS Code build into .vscode-test/
-npm run package                        # dev-harness-0.1.0.vsix
+npm run package                        # dist/dev-harness-<version>.vsix (replaces the previous one)
 ```

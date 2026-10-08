@@ -22,11 +22,13 @@ jobs:
       - run: npm test
         env:
           DH_REPO: ${{ runner.temp }}/dev-harness
+      - name: Committed .vsix matches the package version
+        run: test "$(ls dist/*.vsix)" = "dist/dev-harness-$(node -p 'require("./package.json").version').vsix"
       - run: npm run package
       - uses: actions/upload-artifact@v4
         with:
           name: vsix
-          path: "*.vsix"
+          path: "dist/*.vsix"
 
   integration:
     runs-on: ubuntu-latest
@@ -46,12 +48,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: vsix
-      - name: Tag matches package version
-        run: test -f "dev-harness-${GITHUB_REF_NAME#v}.vsix"
-      - run: gh release create "$GITHUB_REF_NAME" *.vsix
+      - uses: actions/checkout@v4
+      - name: Tag matches the committed .vsix
+        run: test -f "dist/dev-harness-${GITHUB_REF_NAME#v}.vsix"
+      - run: gh release create "$GITHUB_REF_NAME" dist/*.vsix
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
