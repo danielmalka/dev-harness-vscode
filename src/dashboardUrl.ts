@@ -16,7 +16,10 @@ export type ProbeResult = { ok: true } | { ok: false; reason: string };
 /** GET /api/state with a timeout; ok only on HTTP 200. */
 export async function probe(port: number, timeoutMs = 2000): Promise<ProbeResult> {
   try {
-    const res = await fetch(`${localUrl(port)}/api/state`, { signal: AbortSignal.timeout(timeoutMs) });
+    const res = await fetch(`${localUrl(port)}/api/state`, {
+      signal: AbortSignal.timeout(timeoutMs),
+      redirect: "manual", // a 3xx is reported as down; never follow it to another origin
+    });
     await res.body?.cancel();
     return res.status === 200 ? { ok: true } : { ok: false, reason: `o dashboard respondeu HTTP ${res.status} em ${localUrl(port)}/api/state` };
   } catch (err) {

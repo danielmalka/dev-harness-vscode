@@ -1,7 +1,10 @@
 import assert from "node:assert";
 import { beforeEach, test } from "node:test";
 import type * as vscode from "vscode";
+import type * as cp from "node:child_process";
+import { EventEmitter } from "node:events";
 import { DashboardViewProvider, defaultDeps } from "../../src/dashboardView";
+import { startDashboard } from "../../src/startDashboard";
 import { mockState } from "../mock/vscode";
 
 beforeEach(() => {
@@ -79,4 +82,34 @@ test("a slow, older refresh does not overwrite a newer render", async () => {
   await slow;
   assert.ok(view.webview.html.includes(`<iframe src="http://fwd/new"`));
   assert.ok(!view.webview.html.includes("velho"));
+});
+
+test("start: slow initial probe plus a dh that never exits ends within one deadline", async () => {
+  const view = fakeView();
+  let killed = false;
+  const neverExits = (() =>
+    Object.assign(new EventEmitter(), { stderr: new EventEmitter(), kill: () => (killed = true) })) as unknown as typeof cp.spawn;
+  const probeTimeouts: number[] = [];
+  const p = new DashboardViewProvider(
+    {
+      ...defaultDeps,
+      probe: async (_port: number, t = 2000) => {
+        probeTimeouts.push(t);
+        await new Promise((r) => setTimeout(r, Math.min(t, 300)));
+        return { ok: false, reason: "parado" };
+      },
+      findDh: () => "/x/dh",
+      startDashboard: (bin, cfg, _spawn, t) => startDashboard(bin, cfg, neverExits, t),
+    },
+    600,
+  );
+  view.webview.html = "";
+  (p as unknown as { view: unknown }).view = view; // skip resolve's own probe
+  const t0 = Date.now();
+  await p.start();
+  const dt = Date.now() - t0;
+  assert.ok(dt >= 550 && dt < 750, `elapsed ${dt}`);
+  assert.deepStrictEqual(probeTimeouts, [600]);
+  assert.strictEqual(killed, true);
+  assert.ok(view.webview.html.includes("não terminou") && view.webview.html.includes("command:dh.startDashboard"), view.webview.html);
 });

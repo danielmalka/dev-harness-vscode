@@ -94,6 +94,6 @@ test("waitForDashboard: gives up after 10 s when nothing comes up", async () => 
   const t0 = Date.now();
   const r = await waitForDashboard(p);
   const dt = Date.now() - t0;
-  assert.ok(!r.ok && r.reason.includes("10 s"), JSON.stringify(r));
+  assert.ok(!r.ok && r.reason.includes("prazo de início"), JSON.stringify(r));
   assert.ok(dt >= 9000 && dt < 11500, `elapsed ${dt}`);
 });

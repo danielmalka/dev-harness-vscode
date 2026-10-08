@@ -54,18 +54,23 @@ export function startDashboard(
   });
 }
 
-/** Probes every intervalMs until the dashboard answers or timeoutMs passes. */
+/** Probes every intervalMs until the dashboard answers or timeoutMs passes; no probe outlives the deadline. */
 export async function waitForDashboard(
   port: number,
   intervalMs = 500,
   timeoutMs = 10_000,
-  check: (port: number) => Promise<ProbeResult> = (p) => probe(p, Math.min(2000, intervalMs)),
+  check: (port: number, timeoutMs: number) => Promise<ProbeResult> = probe,
 ): Promise<ProbeResult> {
   const deadline = Date.now() + timeoutMs;
+  let last = "nenhuma sondagem feita";
   for (;;) {
-    const r = await check(port);
+    const left = deadline - Date.now();
+    if (left <= 0) break;
+    const r = await check(port, Math.min(2000, intervalMs, left));
     if (r.ok) return r;
-    if (Date.now() + intervalMs > deadline) return { ok: false, reason: `o dashboard não respondeu em 10 s após iniciar (${r.reason})` };
+    last = r.reason;
+    if (Date.now() + intervalMs > deadline) break;
     await new Promise((res) => setTimeout(res, intervalMs));
   }
+  return { ok: false, reason: `o dashboard não respondeu no prazo de início (${last})` };
 }

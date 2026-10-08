@@ -24,7 +24,10 @@ export class DashboardViewProvider implements vscode.WebviewViewProvider {
   /** Last iframe src rendered; read by integration tests. */
   lastIframeUrl?: string;
 
-  constructor(private readonly deps: typeof defaultDeps = defaultDeps) {}
+  constructor(
+    private readonly deps: typeof defaultDeps = defaultDeps,
+    private readonly deadlineMs = START_DEADLINE_MS,
+  ) {}
 
   resolveWebviewView(view: vscode.WebviewView): Promise<void> {
     this.view = view;
@@ -49,8 +52,11 @@ export class DashboardViewProvider implements vscode.WebviewViewProvider {
     this.starting = true;
     const gen = ++this.generation;
     try {
+      const deadline = Date.now() + this.deadlineMs; // covers the initial probe, dh exiting and the dashboard answering
+      const left = () => Math.max(0, deadline - Date.now());
+      const timedOut = () => this.fail(`Motivo: o dashboard não respondeu no prazo de início (${this.deadlineMs / 1000} s).`, gen);
       const cfg = readConfig();
-      if ((await this.deps.probe(cfg.port)).ok) return await this.showDashboard(cfg.port, gen);
+      if ((await this.deps.probe(cfg.port, Math.min(2000, left()))).ok) return await this.showDashboard(cfg.port, gen);
       const bin = this.deps.findDh();
       if (!bin) {
         return this.fail(
@@ -58,11 +64,12 @@ export class DashboardViewProvider implements vscode.WebviewViewProvider {
           gen,
         );
       }
+      if (left() === 0) return timedOut();
       this.show(messageHtml("Iniciando o dashboard…", `Executando ${bin} dashboard --detach --port ${cfg.port}.`, false), gen);
-      const deadline = Date.now() + START_DEADLINE_MS;
-      const started = await this.deps.startDashboard(bin, cfg, undefined, START_DEADLINE_MS);
+      const started = await this.deps.startDashboard(bin, cfg, undefined, left());
       if (!started.ok) return this.fail(`${started.reason}.`, gen);
-      const ready = await this.deps.waitForDashboard(cfg.port, 500, Math.max(0, deadline - Date.now()));
+      if (left() === 0) return timedOut();
+      const ready = await this.deps.waitForDashboard(cfg.port, 500, left());
       if (!ready.ok) return this.fail(`Motivo: ${ready.reason}.`, gen);
       await this.showDashboard(cfg.port, gen);
     } finally {

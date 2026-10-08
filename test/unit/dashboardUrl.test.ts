@@ -60,3 +60,14 @@ test("probe: gives up after 2 s on a server that never answers", async () => {
   assert.ok(dt >= 1900 && dt < 3000, `elapsed ${dt}`);
   s.close();
 });
+
+test("probe: a 302 to another origin is down and is not followed", async () => {
+  const other: string[] = [];
+  const b = await listen((req, res) => (other.push(req.url ?? ""), res.end("{}")));
+  const a = await listen((_req, res) => (res.writeHead(302, { Location: `http://127.0.0.1:${port(b)}/api/state` }), res.end()));
+  const r = await probe(port(a));
+  assert.ok(!r.ok && r.reason.includes("HTTP 302"), JSON.stringify(r));
+  assert.deepStrictEqual(other, []);
+  a.close();
+  b.close();
+});
