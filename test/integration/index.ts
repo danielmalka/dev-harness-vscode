@@ -29,6 +29,10 @@ export async function run(): Promise<void> {
   // R10: the status item command exists; the R2/R3 step below drives the view through it.
   assert.ok((await vscode.commands.getCommands(true)).includes("dh.showDashboard"));
 
+  // R11: the launcher command is registered and contributed to the palette.
+  assert.ok((await vscode.commands.getCommands(true)).includes("dh.openSession"));
+  assert.ok(contrib.commands.some((c: { command: string; title: string }) => c.command === "dh.openSession" && c.title === "dh: abrir sessão"));
+
   // R2/R3: fixture dashboard on a free port (never 4747); the view embeds its asExternalUri URL.
   const asked: string[] = [];
   const server = http.createServer((req, res) => (asked.push(req.url ?? ""), res.end("{}")));

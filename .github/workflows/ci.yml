@@ -17,7 +17,11 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      - name: Check out dev-harness for the command drift test
+        run: git clone --depth 1 https://github.com/danielmalka/dev-harness.git "$RUNNER_TEMP/dev-harness"
       - run: npm test
+        env:
+          DH_REPO: ${{ runner.temp }}/dev-harness
       - run: npm run package
       - uses: actions/upload-artifact@v4
         with:

@@ -32,6 +32,17 @@ The Dashboard view only checks that `/api/state` answers HTTP 200. The status ba
 
 Text: `dh · trabalhando · 5h 42% · sem 18%`. If the dashboard does not answer, answers non-200, or the JSON lacks `avatar.state`, the item shows `dh · dashboard parado` with no error or notification. The extension never reads `~/.claude/dev-harness/sessions`; `/api/state` is the only source. Clicking the item runs `dh.showDashboard`, which reveals and focuses the Dashboard view.
 
+## Launcher: "dh: abrir sessão"
+
+The palette command `dh.openSession` ("dh: abrir sessão") asks two questions:
+
+1. The folder: each open workspace folder, plus each direct subfolder with a `.harness/` directory under each `dh.dashboard.roots` entry. A subfolder that is a symlink pointing outside its root is not offered.
+2. The command: a fixed list of the 19 plugin commands (`/dh:auto`, `build`, `consolidate-memory`, `discover`, `doctor`, `document`, `fix`, `handoff`, `improve`, `plan-loop`, `plan`, `refactor`, `release`, `resume`, `review`, `secure`, `setup`, `understand`, `verify`). There is no free text. A test compares the list with `.commands/` of the dev-harness repo (`DH_REPO`, default `../dev-harness`; CI clones it).
+
+Cancelling either question opens nothing. With no folder to offer (no workspace and no roots, or roots without `.harness/` projects) a warning offers "Abrir configurações". Before opening, the folder is checked again: it must still be an existing directory, with no `..`, whose real path is one of the offered folders; otherwise it is refused with a message.
+
+Then it opens a terminal in that folder, waits for shell integration (up to 1 s), types `claude` with Enter, waits a fixed 3 s (`CLAUDE_START_DELAY_MS` in `src/launcher.ts`) and types `/dh:<name>` **without Enter**: you press Enter. Nothing else is typed and the terminal output is never read. It assumes `claude` is on the `PATH` and the plugin is installed for your user.
+
 ## Limits
 
 - Viewer and launcher only; no runtime dependency, no binary, no snapshot logic.
