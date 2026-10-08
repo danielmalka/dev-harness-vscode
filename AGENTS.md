@@ -11,3 +11,4 @@ VS Code extension for the Dev Harness plugin.
 - Origin PRD: `docs/prd/PRD-013-extensao-vscode.md` in the dev-harness repository.
 - Release: annotated tag `v*`; CI attaches the `.vsix` to the GitHub release.
 - Checks: `npm run lint`, `npm run typecheck`, `npm test`, `xvfb-run -a npm run test:integration`, `npm run package`.
+- Verification status: until the owner's probe (T-1406) runs, nothing has been run in a real VS Code window; README and CHANGELOG say so and no text may claim otherwise.
