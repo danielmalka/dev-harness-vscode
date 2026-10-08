@@ -15,7 +15,21 @@ export const env = {
   },
 };
 
+export const StatusBarAlignment = { Left: 1, Right: 2 };
+
+export const items: { text: string; tooltip?: string; command?: string; shown: boolean; disposed: boolean }[] = [];
+
 export const window = {
+  createStatusBarItem: () => {
+    const it = { text: "", tooltip: undefined, command: undefined, shown: false, disposed: false } as (typeof items)[number] & {
+      show(): void;
+      dispose(): void;
+    };
+    it.show = () => void (it.shown = true);
+    it.dispose = () => void (it.disposed = true);
+    items.push(it);
+    return it;
+  },
   showWarningMessage: async (m: string) => void mockState.warnings.push(m),
   showErrorMessage: async (m: string) => void mockState.errors.push(m),
 };

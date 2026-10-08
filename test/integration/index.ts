@@ -26,6 +26,9 @@ export async function run(): Promise<void> {
   assert.deepStrictEqual(contrib.views.dh, [{ type: "webview", id: "dh.dashboard", name: "Dashboard" }]);
   assert.ok((await vscode.commands.getCommands(true)).includes("dh.startDashboard"));
 
+  // R10: the status item command exists; the R2/R3 step below drives the view through it.
+  assert.ok((await vscode.commands.getCommands(true)).includes("dh.showDashboard"));
+
   // R2/R3: fixture dashboard on a free port (never 4747); the view embeds its asExternalUri URL.
   const asked: string[] = [];
   const server = http.createServer((req, res) => (asked.push(req.url ?? ""), res.end("{}")));
@@ -33,7 +36,7 @@ export async function run(): Promise<void> {
   const port = (server.address() as AddressInfo).port;
   try {
     await vscode.workspace.getConfiguration("dh.dashboard").update("port", port, vscode.ConfigurationTarget.Global);
-    await vscode.commands.executeCommand("dh.dashboard.focus");
+    await vscode.commands.executeCommand("dh.showDashboard");
     const expected = (await vscode.env.asExternalUri(vscode.Uri.parse(`http://127.0.0.1:${port}`))).toString(true);
     const url = await until(() => (provider.lastIframeUrl?.includes(String(port)) ? provider.lastIframeUrl : undefined), 10_000);
     assert.strictEqual(url, expected);

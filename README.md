@@ -24,7 +24,13 @@ The Dev Harness icon in the activity bar opens the Dashboard view. If the dashbo
 
 ## Fields read from `/api/state`
 
-To be filled in T-1403. The view only checks that `/api/state` answers HTTP 200; it reads no field.
+The Dashboard view only checks that `/api/state` answers HTTP 200. The status bar item (refreshed every ~5 s, 2 s timeout, redirects not followed) reads:
+
+- `avatar.state`: `esperando`, `erro`, `trabalhando`, `concluido`, `atencao`, `parado` (shown in pt-br; an unknown id is shown as is).
+- `limits.five_hour` and `limits.seven_day`: percentages rounded to integers; `sem dado` when missing or when `limits.ok` is not `true`.
+- `limits.five_hour_age_sec` and `limits.seven_day_age_sec`: shown only in the tooltip.
+
+Text: `dh · trabalhando · 5h 42% · sem 18%`. If the dashboard does not answer, answers non-200, or the JSON lacks `avatar.state`, the item shows `dh · dashboard parado` with no error or notification. The extension never reads `~/.claude/dev-harness/sessions`; `/api/state` is the only source. Clicking the item runs `dh.showDashboard`, which reveals and focuses the Dashboard view.
 
 ## Limits
 

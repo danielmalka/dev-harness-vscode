@@ -1,0 +1,149 @@
+{
+    "projects": [
+        {
+            "name": "cateaqui",
+            "path": "/home/user/projetos/cateaqui",
+            "open": [
+                {
+                    "prd": "PRD-001",
+                    "done": 0,
+                    "blocked": 2,
+                    "total": 3,
+                    "no_tickets": false
+                },
+                {
+                    "prd": "PRD-002",
+                    "done": 0,
+                    "blocked": 0,
+                    "total": 0,
+                    "no_tickets": true
+                },
+                {
+                    "prd": "PRD-003",
+                    "done": 0,
+                    "blocked": 0,
+                    "total": 0,
+                    "no_tickets": true
+                }
+            ],
+            "delivered": []
+        },
+        {
+            "name": "cdb",
+            "path": "/home/user/projetos/cdb",
+            "open": [],
+            "delivered": []
+        },
+        {
+            "name": "danlemos",
+            "path": "/home/user/projetos/danlemos",
+            "open": [
+                {
+                    "prd": "PRD-001",
+                    "done": 5,
+                    "blocked": 0,
+                    "total": 5,
+                    "no_tickets": false
+                },
+                {
+                    "prd": "PRD-002",
+                    "done": 7,
+                    "blocked": 0,
+                    "total": 7,
+                    "no_tickets": false
+                },
+                {
+                    "prd": "PRD-003",
+                    "done": 6,
+                    "blocked": 0,
+                    "total": 6,
+                    "no_tickets": false
+                }
+            ],
+            "delivered": []
+        },
+        {
+            "name": "dev-harness",
+            "path": "/home/user/projetos/dev-harness",
+            "open": [
+                {
+                    "prd": "PRD-013",
+                    "done": 0,
+                    "blocked": 0,
+                    "total": 7,
+                    "no_tickets": false
+                }
+            ],
+            "delivered": [
+                "PRD-001",
+                "PRD-002",
+                "PRD-003",
+                "PRD-004",
+                "PRD-005",
+                "PRD-006",
+                "PRD-007",
+                "PRD-008",
+                "PRD-009",
+                "PRD-010",
+                "PRD-011",
+                "PRD-012"
+            ]
+        },
+        {
+            "name": "gym-tracker",
+            "path": "/home/user/projetos/gym-tracker",
+            "open": [
+                {
+                    "prd": "PRD-001",
+                    "done": 3,
+                    "blocked": 0,
+                    "total": 3,
+                    "no_tickets": false
+                }
+            ],
+            "delivered": []
+        },
+        {
+            "name": "jevmon",
+            "path": "/home/user/projetos/jevmon",
+            "open": [
+                {
+                    "prd": "PRD-1",
+                    "done": 8,
+                    "blocked": 9,
+                    "total": 17,
+                    "no_tickets": false
+                }
+            ],
+            "delivered": [
+                "PRD-2"
+            ]
+        }
+    ],
+    "sessions": [
+        {
+            "id": "3c95f7ff-e398-455c-b2f6-4c662f765b97",
+            "name": "",
+            "cwd": "/home/user/projetos/dev-harness",
+            "agent": "dh:coordinator",
+            "project": "/home/user/projetos/dev-harness",
+            "activity": "working",
+            "activity_at": "2026-10-08T00:15:07Z",
+            "updated_at": "2026-10-08T00:15:12Z"
+        }
+    ],
+    "limits": {
+        "ok": true,
+        "five_hour": 13,
+        "seven_day": 14,
+        "five_hour_age_sec": 0,
+        "seven_day_age_sec": 0
+    },
+    "avatar": {
+        "state": "trabalhando",
+        "pose": "celular",
+        "fps": 0,
+        "frames": 1
+    },
+    "warnings": []
+}
