@@ -30,6 +30,9 @@ function age(sec: unknown): string {
   return `há ${Math.round(sec / 3600)} h`;
 }
 
+// Age only next to a real value; "sem dado" stands alone, as on the dashboard page.
+const when = (v: unknown, sec: unknown) => (typeof v === "number" ? ` (${age(sec)})` : "");
+
 /** Returns undefined when the response lacks avatar.state (caller shows DOWN_TEXT). */
 export function formatStatus(raw: unknown): StatusView | undefined {
   if (!isObj(raw) || !isObj(raw.avatar) || typeof raw.avatar.state !== "string" || raw.avatar.state === "") return undefined;
@@ -41,6 +44,6 @@ export function formatStatus(raw: unknown): StatusView | undefined {
   const week = ok ? l.seven_day : undefined;
   return {
     text: `dh · ${label} · 5h ${pct(five)} · sem ${pct(week)}`,
-    tooltip: `Dev Harness: ${label}\nLimite 5h: ${pct(five)} (${age(l.five_hour_age_sec)})\nLimite semana: ${pct(week)} (${age(l.seven_day_age_sec)})`,
+    tooltip: `Dev Harness: ${label}\nLimite 5h: ${pct(five)}${when(five, l.five_hour_age_sec)}\nLimite semana: ${pct(week)}${when(week, l.seven_day_age_sec)}`,
   };
 }
