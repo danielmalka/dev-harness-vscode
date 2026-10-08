@@ -2,7 +2,7 @@
   "name": "dev-harness",
   "displayName": "Dev Harness",
   "description": "Viewer and launcher for the Dev Harness Claude Code plugin.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "danielmalka",
   "license": "MIT",
   "repository": {

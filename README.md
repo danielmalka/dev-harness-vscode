@@ -47,7 +47,7 @@ Then it opens a terminal in that folder, waits for shell integration (up to 1 s)
 
 - Viewer and launcher only; no runtime dependency, no binary, no snapshot logic.
 - The panel is live-only in v0.1.
-- The view embeds the dashboard page; it does not reimplement it. The webview runs no scripts of its own: its CSP is `default-src 'none'; frame-src <dashboard origin>; style-src 'unsafe-inline'`, and the only command link allowed is `dh.startDashboard`.
+- The view embeds the dashboard page; it does not reimplement it. The webview enables scripts only so the embedded dashboard page can run its own (VS Code otherwise removes `allow-scripts` from the frame the iframe inherits); the view page itself runs no script: its CSP is `default-src 'none'; frame-src <dashboard origin>; style-src 'unsafe-inline'`, and the only command link allowed is `dh.startDashboard`.
 - If the Dev Harness plugin (`dh@dev-harness`) is not installed, the extension cannot start the dashboard; it never downloads or bundles `dh`.
 - **Not yet run in a real VS Code window** (probe T-1406 pending): the embedded page on Linux and Remote WSL/SSH (`asExternalUri`, PRD-013 H1/H2), the plugin's `/dh:*` commands in any folder (H3), the fixed 3 s wait before typing the command (H4) and the Remote WSL terminal side (R14) are covered by automated tests only.
 - Changing `dh.dashboard.roots` or `sprites` does not restart a dashboard that is already running. The view re-probes when it opens, on a settings change and on the start link; it does not notice a dashboard started elsewhere until then.

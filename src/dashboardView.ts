@@ -10,8 +10,8 @@ export const OFFLINE_TITLE = "Dashboard do Dev Harness parado";
 /** One deadline for the whole start: dh exiting plus the dashboard answering (R6). */
 export const START_DEADLINE_MS = 10_000;
 
-/** Options every time the view is resolved: no scripts, only the start command may run from a link. */
-export const WEBVIEW_OPTIONS: vscode.WebviewOptions = { enableScripts: false, enableCommandUris: ["dh.startDashboard"] };
+/** Options every time the view is resolved. enableScripts must be true: VS Code drops allow-scripts from the content frame otherwise, and the nested dashboard iframe inherits that sandbox (its JS never runs). The view itself still runs no script: its CSP has no script-src. */
+export const WEBVIEW_OPTIONS: vscode.WebviewOptions = { enableScripts: true, enableCommandUris: ["dh.startDashboard"] };
 
 /** Side effects of the view, injectable for tests. */
 export const defaultDeps = { probe, iframeUrl, findDh, startDashboard, waitForDashboard };
