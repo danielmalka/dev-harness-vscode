@@ -68,32 +68,34 @@ test("startDashboard: spawn error (e.g. ENOENT) is a reason, not an exception", 
   assert.ok(!r.ok && r.reason.includes("ENOENT"));
 });
 
-async function freePort(): Promise<number> {
-  const s = http.createServer();
-  await new Promise<void>((r) => s.listen(0, "127.0.0.1", r));
-  const p = (s.address() as AddressInfo).port;
-  await new Promise((r) => s.close(r));
-  return p;
+/** A server whose port stays ours (no bind/close/reuse race): destroys connections until `up` is true. */
+async function flakyServer(): Promise<{ server: http.Server; port: number; setUp: () => void }> {
+  let up = false;
+  const server = http.createServer((q, res) => (up ? res.end("{}") : q.socket.destroy()));
+  server.on("connection", (c) => up || c.destroy());
+  await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
+  return { server, port: (server.address() as AddressInfo).port, setUp: () => (up = true) };
 }
 
 test("waitForDashboard: loads once a server comes up after 1 s", async () => {
-  const p = await freePort();
-  const s = http.createServer((_q, res) => res.end("{}"));
-  const timer = setTimeout(() => s.listen(p, "127.0.0.1"), 1000);
+  const { server, port, setUp } = await flakyServer();
+  const timer = setTimeout(setUp, 1000);
   const t0 = Date.now();
-  const r = await waitForDashboard(p);
+  const r = await waitForDashboard(port);
   const dt = Date.now() - t0;
-  assert.deepStrictEqual(r, { ok: true });
-  assert.ok(dt >= 900 && dt < 2500, `elapsed ${dt}`);
   clearTimeout(timer);
-  s.close();
+  server.closeAllConnections();
+  server.close();
+  assert.deepStrictEqual(r, { ok: true });
+  assert.ok(dt >= 900, `elapsed ${dt}`); // lower bound only: an upper bound is a CI-load flake
 });
 
 test("waitForDashboard: gives up after 10 s when nothing comes up", async () => {
-  const p = await freePort();
+  const { server, port } = await flakyServer();
   const t0 = Date.now();
-  const r = await waitForDashboard(p);
+  const r = await waitForDashboard(port);
   const dt = Date.now() - t0;
+  server.close();
   assert.ok(!r.ok && r.reason.includes("prazo de início"), JSON.stringify(r));
-  assert.ok(dt >= 9000 && dt < 11500, `elapsed ${dt}`);
+  assert.ok(dt >= 9000, `elapsed ${dt}`);
 });

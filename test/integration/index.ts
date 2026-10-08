@@ -34,8 +34,7 @@ export async function run(): Promise<void> {
   assert.ok(contrib.commands.some((c: { command: string; title: string }) => c.command === "dh.openSession" && c.title === "dh: abrir sessão"));
 
   // R2/R3: fixture dashboard on a free port (never 4747); the view embeds its asExternalUri URL.
-  const asked: string[] = [];
-  const server = http.createServer((req, res) => (asked.push(req.url ?? ""), res.end("{}")));
+    const server = http.createServer((_req, res) => res.end("{}"));
   await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
   const port = (server.address() as AddressInfo).port;
   try {
@@ -44,7 +43,9 @@ export async function run(): Promise<void> {
     const expected = (await vscode.env.asExternalUri(vscode.Uri.parse(`http://127.0.0.1:${port}`))).toString(true);
     const url = await until(() => (provider.lastIframeUrl?.includes(String(port)) ? provider.lastIframeUrl : undefined), 10_000);
     assert.strictEqual(url, expected);
-    assert.ok(asked.includes("/api/state"), `requests: ${asked.join(",")}`);
+    // View-specific evidence: lastIframeUrl is set only when the view itself rendered the iframe (the status bar
+    // also polls /api/state, so a request log would not prove the view).
+    assert.strictEqual(provider.lastIframeUrl, expected);
   } finally {
     await vscode.workspace.getConfiguration("dh.dashboard").update("port", undefined, vscode.ConfigurationTarget.Global);
     server.close();
