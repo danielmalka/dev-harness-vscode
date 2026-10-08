@@ -1,0 +1,102 @@
+{
+  "name": "dev-harness",
+  "displayName": "Dev Harness",
+  "description": "Viewer and launcher for the Dev Harness Claude Code plugin.",
+  "version": "0.1.0",
+  "publisher": "danielmalka",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielmalka/dev-harness-vscode.git"
+  },
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "extensionKind": [
+    "workspace"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "dh.startDashboard",
+        "title": "Iniciar dashboard",
+        "category": "Dev Harness"
+      },
+      {
+        "command": "dh.openSession",
+        "title": "dh: abrir sessão"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "dh",
+          "title": "Dev Harness",
+          "icon": "media/dh.svg"
+        }
+      ]
+    },
+    "views": {
+      "dh": [
+        {
+          "type": "webview",
+          "id": "dh.dashboard",
+          "name": "Dashboard"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Dev Harness",
+      "properties": {
+        "dh.dashboard.port": {
+          "scope": "machine",
+          "type": "integer",
+          "default": 4747,
+          "minimum": 1024,
+          "maximum": 65535,
+          "description": "Porta local do dh dashboard (1024 a 65535). Valor inválido cai em 4747 com aviso."
+        },
+        "dh.dashboard.roots": {
+          "scope": "machine",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Pastas de projetos passadas ao dh dashboard em DH_DASHBOARD_ROOTS (juntadas com ;) ao clicar em Iniciar dashboard."
+        },
+        "dh.dashboard.sprites": {
+          "scope": "machine",
+          "type": "string",
+          "default": "",
+          "description": "Pasta de sprites passada ao dh dashboard em DH_DASHBOARD_SPRITES (opcional)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.test.json --noEmit",
+    "test": "tsc -p tsconfig.test.json && node --require ./out-test/test/mock/register.js --test \"out-test/test/unit/*.test.js\"",
+    "test:integration": "npm run build && tsc -p tsconfig.test.json && node out-test/test/integration/runTest.js",
+    "package": "vsce package --no-dependencies",
+    "vscode:prepublish": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/vscode": "^1.93.0",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^4.0.0",
+    "eslint": "^10.12.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.1"
+  }
+}
