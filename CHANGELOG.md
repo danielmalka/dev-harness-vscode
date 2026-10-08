@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.1.0 - Unreleased
+## 0.1.1 - 2026-10-08
+
+- Fix: the embedded dashboard stayed on "carregando..." with no projects or sprites. With `enableScripts: false` VS Code removes `allow-scripts` from the webview content frame, and the nested dashboard iframe inherits that sandbox, so the dashboard page could not run its own script. The webview now sets `enableScripts: true`; the view page still runs no script of its own (its CSP has no `script-src`), and command links stay limited to `dh.startDashboard`. Seen in a real VS Code on Windows and Remote WSL (T-1406).
+
+## 0.1.0 - 2026-10-07
 
 - Dashboard view in the activity bar: embeds the local `dh dashboard` page (single-origin CSP, sandboxed iframe), offline message with "Iniciar dashboard", 10 s start wait.
 - Status bar item (`dh · trabalhando · 5h 42% · sem 18%`) from `GET /api/state` every ~5 s; `dh · dashboard parado` when down; click reveals the view.

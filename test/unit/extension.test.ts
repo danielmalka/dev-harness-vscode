@@ -8,6 +8,6 @@ test("activate is exported and deactivate runs without error", () => {
   assert.doesNotThrow(() => ext.deactivate());
 });
 
-test("webview options: no scripts, command URIs limited to dh.startDashboard", () => {
-  assert.deepStrictEqual(WEBVIEW_OPTIONS, { enableScripts: false, enableCommandUris: ["dh.startDashboard"] });
+test("webview options: scripts on for the nested iframe, command URIs limited to dh.startDashboard", () => {
+  assert.deepStrictEqual(WEBVIEW_OPTIONS, { enableScripts: true, enableCommandUris: ["dh.startDashboard"] });
 });
