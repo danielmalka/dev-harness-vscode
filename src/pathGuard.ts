@@ -10,40 +10,50 @@ function realDir(p: string): string | undefined {
   }
 }
 
+export interface Project {
+  name: string;
+  path: string;
+}
+
 /**
- * Folders the launcher may open (PRD-013 R11/R13), as real paths: each workspace folder, plus each direct
- * subfolder of a root that has a `.harness/` directory and whose real path stays inside the root's real path
- * (a symlinked subfolder pointing elsewhere is dropped).
+ * Parses `dh projects --json` stdout (array of {name, path, mode, harness}). Keeps only items whose `path` is a
+ * string, absolute and an existing directory, as its real path. Anything malformed yields [].
  */
-export function candidateFolders(workspaceFolders: readonly string[], roots: readonly string[]): string[] {
-  const out = new Set<string>();
+export function parseProjects(stdout: string): Project[] {
+  let data: unknown;
+  try {
+    data = JSON.parse(stdout);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(data)) return [];
+  const out: Project[] = [];
+  for (const it of data as unknown[]) {
+    const o = (it ?? {}) as { name?: unknown; path?: unknown };
+    if (typeof o.path !== "string" || !path.isAbsolute(o.path)) continue;
+    const real = realDir(o.path);
+    if (real) out.push({ name: typeof o.name === "string" && o.name !== "" ? o.name : path.basename(real), path: real });
+  }
+  return out;
+}
+
+/** Folders the launcher may open, as real paths: each workspace folder, then each valid dh project; deduped. */
+export function candidateFolders(workspaceFolders: readonly string[], projects: readonly Project[]): Project[] {
+  const out = new Map<string, Project>();
   for (const w of workspaceFolders) {
     const real = realDir(w);
-    if (real) out.add(real);
+    if (real && !out.has(real)) out.set(real, { name: path.basename(real) || real, path: real });
   }
-  for (const r of roots) {
-    const root = path.isAbsolute(r) ? realDir(r) : undefined;
-    if (!root) continue;
-    let entries: string[];
-    try {
-      entries = fs.readdirSync(root);
-    } catch {
-      continue;
-    }
-    for (const name of entries.sort()) {
-      const sub = realDir(path.join(root, name));
-      if (sub && path.dirname(sub) === root && realDir(path.join(sub, ".harness"))) out.add(sub);
-    }
-  }
-  return [...out];
+  for (const p of projects) if (!out.has(p.path)) out.set(p.path, p);
+  return [...out.values()];
 }
 
 /**
  * Re-validates a picked folder at the moment of use: absolute, no `..` segment, still an existing directory,
  * and its real path is one of `candidates` (recomputed by the caller). Returns the real path or undefined.
  */
-export function validateCwd(picked: string, candidates: readonly string[]): string | undefined {
+export function validateCwd(picked: string, candidates: readonly Project[]): string | undefined {
   if (!path.isAbsolute(picked) || picked.split(/[\\/]/).includes("..")) return undefined;
   const real = realDir(picked);
-  return real !== undefined && candidates.includes(real) ? real : undefined;
+  return real !== undefined && candidates.some((c) => c.path === real) ? real : undefined;
 }

@@ -4,11 +4,9 @@ import { probe, type ProbeResult } from "./dashboardUrl";
 
 export type StartResult = { ok: true } | { ok: false; reason: string };
 
-/** argv and env for `dh dashboard --detach`; the env vars are set only when the setting is non-empty. */
+/** argv and env for `dh dashboard --detach`; the inherited env passes through untouched (projects come from ~/.harness/config.yaml). */
 export function spawnSpec(cfg: DashboardConfig, baseEnv: NodeJS.ProcessEnv = process.env) {
   const env: NodeJS.ProcessEnv = { ...baseEnv };
-  if (cfg.roots.length > 0) env.DH_DASHBOARD_ROOTS = cfg.roots.join(";");
-  if (cfg.sprites !== "") env.DH_DASHBOARD_SPRITES = cfg.sprites;
   return { args: ["dashboard", "--detach", "--port", String(cfg.port)], env };
 }
 

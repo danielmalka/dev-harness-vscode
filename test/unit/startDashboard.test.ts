@@ -6,7 +6,7 @@ import type { AddressInfo } from "node:net";
 import { test } from "node:test";
 import { spawnSpec, startDashboard, waitForDashboard } from "../../src/startDashboard";
 
-const cfg = { port: 4800, roots: ["/p/a", "/p/b"], sprites: "/s" };
+const cfg = { port: 4800 };
 
 type FakeChild = EventEmitter & { stderr: EventEmitter; killed: boolean; kill: () => boolean };
 function fakeSpawn(behave: (child: FakeChild) => void) {
@@ -24,16 +24,11 @@ function fakeSpawn(behave: (child: FakeChild) => void) {
   return { spawn, calls };
 }
 
-test("spawnSpec: argv array and the two env vars from non-empty settings", () => {
-  const { args, env } = spawnSpec(cfg, { PATH: "/bin", DH_DASHBOARD_ROOTS: "/old" });
+test("spawnSpec: argv array and the inherited env passed through untouched", () => {
+  const base = { PATH: "/bin", DH_DASHBOARD_ROOTS: "/inh", DH_DASHBOARD_SPRITES: "/spr" };
+  const { args, env } = spawnSpec(cfg, base);
   assert.deepStrictEqual(args, ["dashboard", "--detach", "--port", "4800"]);
-  assert.deepStrictEqual(env, { PATH: "/bin", DH_DASHBOARD_ROOTS: "/p/a;/p/b", DH_DASHBOARD_SPRITES: "/s" });
-});
-
-test("spawnSpec: empty settings keep the inherited env values", () => {
-  const { env } = spawnSpec({ port: 4800, roots: [], sprites: "" }, { DH_DASHBOARD_ROOTS: "/inh", DH_DASHBOARD_SPRITES: "/spr" });
-  assert.deepStrictEqual(env, { DH_DASHBOARD_ROOTS: "/inh", DH_DASHBOARD_SPRITES: "/spr" });
-  assert.deepStrictEqual(spawnSpec({ port: 4800, roots: [], sprites: "" }, {}).env, {});
+  assert.deepStrictEqual(env, base);
 });
 
 test("startDashboard: a dh that never exits is killed at the deadline", async () => {
@@ -52,7 +47,6 @@ test("startDashboard: spawns without a shell and resolves ok on exit 0", async (
   assert.strictEqual(calls[0].cmd, "/x/dh");
   assert.deepStrictEqual(calls[0].args, ["dashboard", "--detach", "--port", "4800"]);
   assert.strictEqual(calls[0].opts.shell, false);
-  assert.strictEqual(calls[0].opts.env?.DH_DASHBOARD_ROOTS, "/p/a;/p/b");
 });
 
 test("startDashboard: non-zero exit reports truncated stderr", async () => {
