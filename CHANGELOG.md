@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0 - 2026-10-09
+
+- Breaking: removed the settings `dh.dashboard.roots` and `dh.dashboard.sprites`; the extension no longer sets `DH_DASHBOARD_ROOTS`/`DH_DASHBOARD_SPRITES`. Projects and sprites come from `~/.harness/config.yaml` through the kit.
+- The `dh: abrir sessão` picker lists the workspace folders plus the projects from `dh projects --json` (each path validated: absolute, existing directory, real path); on any failure it falls back to workspace folders only. The old roots / `.harness` subfolder scan is gone.
+- Requires dh kit >= 0.21.0.
+- Closes #5 (the kit re-reads `config.yaml` on every state build; the extension does no mismatch detection or restart).
+
 ## 0.1.3 - 2026-10-08
 
 - The `.vsix` of the current version is committed at `dist/dev-harness-<version>.vsix`; `npm run package` writes it there and removes the previous one. CI checks the committed file name against `package.json`, and the release job attaches that committed file. No code change.

@@ -2,7 +2,7 @@
   "name": "dev-harness",
   "displayName": "Dev Harness",
   "description": "Viewer and launcher for the Dev Harness Claude Code plugin.",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "publisher": "danielmalka",
   "license": "MIT",
   "repository": {
@@ -62,21 +62,6 @@
           "minimum": 1024,
           "maximum": 65535,
           "description": "Porta local do dh dashboard (1024 a 65535). Valor inválido cai em 4747 com aviso."
-        },
-        "dh.dashboard.roots": {
-          "scope": "machine",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [],
-          "description": "Pastas de projetos passadas ao dh dashboard em DH_DASHBOARD_ROOTS (juntadas com ;) ao clicar em Iniciar dashboard."
-        },
-        "dh.dashboard.sprites": {
-          "scope": "machine",
-          "type": "string",
-          "default": "",
-          "description": "Pasta de sprites passada ao dh dashboard em DH_DASHBOARD_SPRITES (opcional)."
         }
       }
     }

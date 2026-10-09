@@ -12,15 +12,15 @@ Viewer and launcher for the Dev Harness plugin. It does not run the harness, orc
 1. Take `dist/dev-harness-<version>.vsix` from this repository (committed for the current version) or download it from the GitHub release.
 2. In VS Code: Extensions view, `...` menu, "Install from VSIX...". Or `code --install-extension dev-harness-<version>.vsix`.
 
-## Settings
+## Requirements and settings
+
+Requires the dh kit (Dev Harness plugin) >= 0.21.0. Projects and sprites come from the global harness `~/.harness/config.yaml`, read by the kit; the extension has no roots or sprites settings (removed in 0.2.0) and never sets `DH_DASHBOARD_*`. The extension does not detect or restart a dashboard that is already running.
 
 | Setting | Type | Default | Use |
 |---|---|---|---|
 | `dh.dashboard.port` | integer, 1024 to 65535 | `4747` | Port of the local `dh dashboard`. An invalid value falls back to 4747 with a warning. |
-| `dh.dashboard.roots` | list of folders | `[]` | Passed to `dh dashboard` as `DH_DASHBOARD_ROOTS` (joined with `;`) when "Iniciar dashboard" starts it. A folder containing `;` is ignored with a warning. Empty: the inherited `DH_DASHBOARD_ROOTS` is kept. |
-| `dh.dashboard.sprites` | folder | `""` | Passed as `DH_DASHBOARD_SPRITES` (optional). Empty: the inherited value is kept. |
 
-The Dev Harness icon in the activity bar opens the Dashboard view. If the dashboard answers `GET http://127.0.0.1:<port>/api/state` within 2 s, the view embeds its page in an `iframe` (URL from `vscode.env.asExternalUri`). Otherwise the view says why and offers "Iniciar dashboard", which runs the newest installed plugin binary (`~/.claude/plugins/cache/dev-harness/dh/<version>/bin/<os>_<arch>/dh`) as `dh dashboard --detach --port <port>` and gives the whole start (initial probe, dh exiting and the dashboard answering) one 10 s deadline; a `dh` that does not exit in time is killed. Roots and sprites only take effect when the extension starts the dashboard; a dashboard already running keeps its own.
+The Dev Harness icon in the activity bar opens the Dashboard view. If the dashboard answers `GET http://127.0.0.1:<port>/api/state` within 2 s, the view embeds its page in an `iframe` (URL from `vscode.env.asExternalUri`). Otherwise the view says why and offers "Iniciar dashboard", which runs the newest installed plugin binary (`~/.claude/plugins/cache/dev-harness/dh/<version>/bin/<os>_<arch>/dh`) as `dh dashboard --detach --port <port>` and gives the whole start (initial probe, dh exiting and the dashboard answering) one 10 s deadline; a `dh` that does not exit in time is killed. The environment is passed through untouched.
 
 ## Fields read from `/api/state`
 
@@ -36,10 +36,10 @@ Text: `dh · trabalhando · 5h 42% · sem 18%`. If the dashboard does not answer
 
 The palette command `dh.openSession` ("dh: abrir sessão") asks two questions:
 
-1. The folder: each open workspace folder, plus each direct subfolder with a `.harness/` directory under each `dh.dashboard.roots` entry. A subfolder that is a symlink pointing outside its root is not offered.
+1. The folder: each open workspace folder, plus each project listed by `dh projects --json` (named as dh names it). Only entries whose `path` is absolute and an existing directory are kept, as real paths. If `dh` is missing, fails or times out (5 s), only the workspace folders are offered.
 2. The command: a fixed list of the 19 plugin commands (`/dh:auto`, `build`, `consolidate-memory`, `discover`, `doctor`, `document`, `fix`, `handoff`, `improve`, `plan-loop`, `plan`, `refactor`, `release`, `resume`, `review`, `secure`, `setup`, `understand`, `verify`). There is no free text. A test compares the list with `.commands/` of the dev-harness repo (`DH_REPO`, default `../dev-harness`; CI clones it).
 
-Cancelling either question opens nothing. With no folder to offer (no workspace and no roots, or roots without `.harness/` projects) a warning offers "Abrir configurações". Before opening, the folder is checked again: it must still be an existing directory, with no `..`, whose real path is one of the offered folders; otherwise it is refused with a message.
+Cancelling either question opens nothing. With no folder to offer (no workspace and no dh projects) a warning says to open a folder or register a project with `dh` (e.g. `dh link`). Before opening, the folder is checked again: it must still be an existing directory, with no `..`, whose real path is one of the offered folders; otherwise it is refused with a message.
 
 Then it opens a terminal in that folder, waits for shell integration (up to 1 s), types `claude` with Enter, waits a fixed 3 s (`CLAUDE_START_DELAY_MS` in `src/launcher.ts`) and types `/dh:<name>` **without Enter**: you press Enter. Nothing else is typed and the terminal output is never read. It assumes `claude` is on the `PATH` and the plugin is installed for your user.
 
@@ -50,7 +50,6 @@ Then it opens a terminal in that folder, waits for shell integration (up to 1 s)
 - The view embeds the dashboard page; it does not reimplement it. The webview enables scripts only so the embedded dashboard page can run its own (VS Code otherwise removes `allow-scripts` from the frame the iframe inherits); the view page itself runs no script: its CSP is `default-src 'none'; frame-src <dashboard origin>; style-src 'unsafe-inline'`, and the only command link allowed is `dh.startDashboard`.
 - If the Dev Harness plugin (`dh@dev-harness`) is not installed, the extension cannot start the dashboard; it never downloads or bundles `dh`.
 - Verified by hand in a real VS Code (probe T-1406): with v0.1.1, the embedded page in a Remote WSL window and in a local Windows window, and the launcher in Remote WSL; the status item in both windows (already with v0.1.0). "Iniciar dashboard" was not exercised (the dashboard was already running). In a local Windows window with WSL mirrored networking the view reads the dashboard running in WSL; "Iniciar dashboard" there is expected to fail to find the WSL `dh` (not exercised), so start it from the WSL window or with `/dashboard` in Claude Code.
-- Changing `dh.dashboard.roots` or `sprites` does not restart a dashboard that is already running. The view re-probes when it opens, on a settings change and on the start link; it does not notice a dashboard started elsewhere until then.
 
 ## Development
 
